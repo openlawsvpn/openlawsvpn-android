@@ -12,22 +12,32 @@ deps:
 	./scripts/build-deps-android.sh
 
 # Build a signed release APK (sideload / F-Droid).
-# Reads signing credentials from `pass` — configure PASS_PREFIX to match your store layout.
-# Example tree: openlawsvpn/android/{keystore-path,keystore-password,key-alias,key-password}
-PASS_PREFIX ?= openlawsvpn/android
+#
+# Only the two passwords are secrets and come from `pass`.
+# KEYSTORE_PATH is a plain file path (not secret) — override on the command line
+# or set it in local.properties if you prefer.
+# KEY_ALIAS is just the alias name used when the keystore was created.
+#
+# pass store layout:  openlawsvpn/android/keystore-password
+#                     openlawsvpn/android/key-password
+#
+PASS_PREFIX  ?= openlawsvpn/android
+KEYSTORE_PATH ?= $(HOME)/secrets/openlawsvpn-release.keystore
+KEY_ALIAS     ?= openlawsvpn
+
 release:
-	KEYSTORE_PATH="$$(pass show $(PASS_PREFIX)/keystore-path)" \
+	KEYSTORE_PATH="$(KEYSTORE_PATH)" \
 	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
-	KEY_ALIAS="$$(pass show $(PASS_PREFIX)/key-alias)" \
+	KEY_ALIAS="$(KEY_ALIAS)" \
 	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
 	./gradlew assembleRelease
 	@echo "APK: app/build/outputs/apk/release/app-release.apk"
 
 # Build a signed release AAB (Google Play).
 bundle:
-	KEYSTORE_PATH="$$(pass show $(PASS_PREFIX)/keystore-path)" \
+	KEYSTORE_PATH="$(KEYSTORE_PATH)" \
 	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
-	KEY_ALIAS="$$(pass show $(PASS_PREFIX)/key-alias)" \
+	KEY_ALIAS="$(KEY_ALIAS)" \
 	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
 	./gradlew bundleRelease
 	@echo "AAB: app/build/outputs/bundle/release/app-release.aab"
