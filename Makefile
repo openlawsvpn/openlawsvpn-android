@@ -11,22 +11,26 @@ init submodules:
 deps:
 	./scripts/build-deps-android.sh
 
-# Build a signed release APK (sideload / F-Droid).
+# Release signing via `pass`.
 #
-# Only the two passwords are secrets and come from `pass`.
-# KEYSTORE_PATH is a plain file path (not secret) — override on the command line
-# or set it in local.properties if you prefer.
-# KEY_ALIAS is just the alias name used when the keystore was created.
+# pass store layout:
+#   openlawsvpn/android/keystore-base64   — base64-encoded .keystore file
+#   openlawsvpn/android/keystore-password — keystore password
+#   openlawsvpn/android/key-password      — key password
 #
-# pass store layout:  openlawsvpn/android/keystore-password
-#                     openlawsvpn/android/key-password
+# The keystore is decoded into a mktemp file for the duration of the build,
+# then deleted (trap ensures cleanup even on failure).
 #
-PASS_PREFIX  ?= openlawsvpn/android
-KEYSTORE_PATH ?= $(HOME)/secrets/openlawsvpn-release.keystore
-KEY_ALIAS     ?= openlawsvpn
+PASS_PREFIX ?= openlawsvpn/android
+KEY_ALIAS   ?= openlawsvpn
 
+# Build a signed release APK (sideload / F-Droid).
 release:
-	KEYSTORE_PATH="$(KEYSTORE_PATH)" \
+	@set -e; \
+	ks=$$(mktemp --suffix=.keystore); \
+	trap "rm -f $$ks" EXIT; \
+	pass show $(PASS_PREFIX)/keystore-base64 | base64 -d > $$ks; \
+	KEYSTORE_PATH="$$ks" \
 	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
 	KEY_ALIAS="$(KEY_ALIAS)" \
 	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
@@ -35,7 +39,11 @@ release:
 
 # Build a signed release AAB (Google Play).
 bundle:
-	KEYSTORE_PATH="$(KEYSTORE_PATH)" \
+	@set -e; \
+	ks=$$(mktemp --suffix=.keystore); \
+	trap "rm -f $$ks" EXIT; \
+	pass show $(PASS_PREFIX)/keystore-base64 | base64 -d > $$ks; \
+	KEYSTORE_PATH="$$ks" \
 	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
 	KEY_ALIAS="$(KEY_ALIAS)" \
 	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
