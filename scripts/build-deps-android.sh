@@ -113,7 +113,6 @@ build_openssl() {
     export PATH="$NDK_TOOLCHAIN:$PATH"
 
     ./Configure "$ARCH" \
-        -D__ANDROID_API__="$ANDROID_API" \
         --prefix="$INSTALL_DIR" \
         no-shared no-tests no-apps no-docs
 
