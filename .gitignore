@@ -10,3 +10,6 @@ app/.cxx/
 # Submodule build cache
 openlawsvpn/build/
 openlawsvpn/.ccache/
+# Prebuilt native deps (built by make deps / scripts/build-deps-android.sh)
+prebuilt/
+.deps-build/

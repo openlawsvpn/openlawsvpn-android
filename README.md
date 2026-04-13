@@ -14,11 +14,19 @@ make init
 git submodule update --init --recursive
 ```
 
-### 2. Prebuilt OpenSSL + LZ4 (Android NDK)
+### 2. Build native deps (OpenSSL + LZ4)
 
 The NDK build requires static libraries for `arm64-v8a` and `x86_64`.
-Cross-compile them with the NDK toolchain or use a prebuilt package, then
-update the paths in `app/src/main/cpp/CMakeLists.txt`.
+The script downloads sources and cross-compiles them using the NDK clang toolchain.
+
+```sh
+make deps
+# or manually:
+./scripts/build-deps-android.sh
+```
+
+The NDK is auto-detected from `~/Android/Sdk/ndk/*` or `$ANDROID_NDK`.
+Output goes to `prebuilt/` (gitignored). Run once; re-run only when updating library versions.
 
 ### 3. Android Studio
 
@@ -28,8 +36,10 @@ The IDE will sync Gradle and invoke CMake automatically.
 ## Development
 
 ```sh
-make init          # initialize / update all submodules
-make submodules    # same as init
+make init          # initialize / update all submodules (run once after cloning)
+make deps          # cross-compile OpenSSL + LZ4 for arm64-v8a and x86_64 (run once)
+make clean         # Gradle clean
+make clean-deps-build  # remove downloaded source tarballs (keeps prebuilt/ output)
 ```
 
 Full build, run, and device management are handled through Android Studio or

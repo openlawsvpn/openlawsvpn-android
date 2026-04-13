@@ -31,11 +31,32 @@ FetchContent_MakeAvailable(asio)
 # asio/include is the header root: contains asio.hpp and asio/
 set(ASIO_INCLUDE_DIR "${asio_SOURCE_DIR}/asio/include")
 
-# ── Find OpenSSL and LZ4 from the NDK sysroot / prebuilt packages ─────────────
-# These must be provided as prebuilt .a files for Android (static linking).
-# See docs/android-build.md for the recommended prebuilt setup.
-find_library(log-lib log)
+# ── Prebuilt OpenSSL and LZ4 ──────────────────────────────────────────────────
+# Build them once with: make deps  (runs scripts/build-deps-android.sh)
+# Output lives in prebuilt/{openssl,lz4}/<ABI>/{include,lib}/
+set(PREBUILT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../prebuilt")
+set(OPENSSL_DIR  "${PREBUILT_DIR}/openssl/${ANDROID_ABI}")
+set(LZ4_DIR      "${PREBUILT_DIR}/lz4/${ANDROID_ABI}")
+
+foreach(dep openssl lz4)
+    set(dep_dir "${PREBUILT_DIR}/${dep}/${ANDROID_ABI}")
+    if(NOT EXISTS "${dep_dir}/lib")
+        message(FATAL_ERROR
+            "Prebuilt ${dep} not found at ${dep_dir}\n"
+            "Run:  make deps\n"
+            "  or: ./scripts/build-deps-android.sh")
+    endif()
+endforeach()
+
+find_library(log-lib     log)
 find_library(android-lib android)
+
+add_library(ssl    STATIC IMPORTED)
+add_library(crypto STATIC IMPORTED)
+add_library(lz4    STATIC IMPORTED)
+set_target_properties(ssl    PROPERTIES IMPORTED_LOCATION "${OPENSSL_DIR}/lib/libssl.a")
+set_target_properties(crypto PROPERTIES IMPORTED_LOCATION "${OPENSSL_DIR}/lib/libcrypto.a")
+set_target_properties(lz4    PROPERTIES IMPORTED_LOCATION "${LZ4_DIR}/lib/liblz4.a")
 
 # ── JNI bridge + shared libopenlawsvpn sources ────────────────────────────────
 add_library(openlawsvpn_jni SHARED
@@ -62,15 +83,12 @@ target_include_directories(openlawsvpn_jni PRIVATE
     ${LINUX_INC_DIR}
     ${OPENVPN3_CORE_DIR}
     ${ASIO_INCLUDE_DIR}
+    ${OPENSSL_DIR}/include
+    ${LZ4_DIR}/include
 )
 
-# TODO: Add prebuilt OpenSSL and LZ4 static libs for Android NDK.
-# Until then, the library will fail to link. See docs/android-build.md.
 target_link_libraries(openlawsvpn_jni
+    ssl crypto lz4
     ${log-lib}
     ${android-lib}
-    # OpenSSL (prebuilt .a — add path once available):
-    # ssl crypto
-    # LZ4 (prebuilt .a — add path once available):
-    # lz4
 )
