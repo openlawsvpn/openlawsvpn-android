@@ -6,6 +6,9 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+permissions:
+  contents: write   # required to create GitHub Releases and upload assets
+
 jobs:
   build:
     runs-on: ubuntu-latest
