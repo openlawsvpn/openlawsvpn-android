@@ -6,11 +6,14 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
 }
 
-// Read release-signing credentials from local.properties (never committed).
+// Release-signing credentials — resolved in priority order:
+//   1. Environment variable  (GHA secrets / `pass`-injected env)
+//   2. local.properties key  (developer workstation, gitignored)
 // Keys: KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
 val localProps = Properties().also { p ->
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(p::load)
 }
+fun secret(key: String): String? = System.getenv(key) ?: localProps[key] as String?
 
 android {
     namespace = "com.openlawsvpn.android"
@@ -41,12 +44,12 @@ android {
 
     signingConfigs {
         create("release") {
-            val ks = localProps["KEYSTORE_PATH"] as String?
+            val ks = secret("KEYSTORE_PATH")
             if (!ks.isNullOrBlank()) {
                 storeFile     = file(ks)
-                storePassword = localProps["KEYSTORE_PASSWORD"] as String?
-                keyAlias      = localProps["KEY_ALIAS"]         as String?
-                keyPassword   = localProps["KEY_PASSWORD"]      as String?
+                storePassword = secret("KEYSTORE_PASSWORD")
+                keyAlias      = secret("KEY_ALIAS")
+                keyPassword   = secret("KEY_PASSWORD")
             }
         }
     }
