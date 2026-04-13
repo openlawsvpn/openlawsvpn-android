@@ -1,17 +1,26 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("androidx.navigation.safeargs.kotlin")
 }
 
+// Read release-signing credentials from local.properties (never committed).
+// Keys: KEYSTORE_PATH, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+val localProps = Properties().also { p ->
+    rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use(p::load)
+}
+
 android {
     namespace = "com.openlawsvpn.android"
-    compileSdk = 34
+    compileSdk = 35
+    ndkVersion = "30.0.14904198" //28.0.12433566"  // update to latest LTS from SDK Manager
 
     defaultConfig {
         applicationId = "com.openlawsvpn.android"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
 
@@ -30,9 +39,22 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val ks = localProps["KEYSTORE_PATH"] as String?
+            if (!ks.isNullOrBlank()) {
+                storeFile     = file(ks)
+                storePassword = localProps["KEYSTORE_PASSWORD"] as String?
+                keyAlias      = localProps["KEY_ALIAS"]         as String?
+                keyPassword   = localProps["KEY_PASSWORD"]      as String?
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
