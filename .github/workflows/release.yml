@@ -44,9 +44,7 @@ jobs:
 
       - name: Build prebuilt deps (OpenSSL + LZ4)
         if: steps.cache-prebuilt.outputs.cache-hit != 'true'
-        env:
-          ANDROID_NDK: ${{ env.ANDROID_HOME }}/ndk/30.0.14904198
-        run: ./scripts/build-deps-android.sh
+        run: ANDROID_NDK="$ANDROID_HOME/ndk/30.0.14904198" ./scripts/build-deps-android.sh
 
       # ── Cache: Gradle ──────────────────────────────────────────────────────
       - name: Cache Gradle
@@ -77,7 +75,6 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS:         openlawsvpn
           KEY_PASSWORD:      ${{ secrets.KEYSTORE_PASSWORD }}
-          ANDROID_NDK:       ${{ env.ANDROID_HOME }}/ndk/30.0.14904198
         run: ./gradlew bundleRelease assembleRelease
 
       # ── Upload build artifacts ─────────────────────────────────────────────
