@@ -17,6 +17,20 @@ if(NOT EXISTS "${OPENLAWSVPN_DIR}/linux/src/libopenlawsvpn.cpp")
         "Run: git submodule update --init --recursive")
 endif()
 
+# ── ASIO (header-only) ────────────────────────────────────────────────────────
+# openvpn3-core expects standalone ASIO. It is not a git submodule — fetch it
+# at configure time. Version must match openvpn3-core/deps/lib-versions.
+include(FetchContent)
+FetchContent_Declare(
+    asio
+    GIT_REPOSITORY https://github.com/chriskohlhoff/asio.git
+    GIT_TAG        asio-1-24-0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(asio)
+# asio/include is the header root: contains asio.hpp and asio/
+set(ASIO_INCLUDE_DIR "${asio_SOURCE_DIR}/asio/include")
+
 # ── Find OpenSSL and LZ4 from the NDK sysroot / prebuilt packages ─────────────
 # These must be provided as prebuilt .a files for Android (static linking).
 # See docs/android-build.md for the recommended prebuilt setup.
@@ -47,6 +61,7 @@ target_compile_definitions(openlawsvpn_jni PRIVATE
 target_include_directories(openlawsvpn_jni PRIVATE
     ${LINUX_INC_DIR}
     ${OPENVPN3_CORE_DIR}
+    ${ASIO_INCLUDE_DIR}
 )
 
 # TODO: Add prebuilt OpenSSL and LZ4 static libs for Android NDK.
