@@ -100,6 +100,7 @@ class SamlCallbackServer {
                             .find { it.startsWith("SAMLResponse=") }
                             ?.removePrefix("SAMLResponse=")
                             ?.let { t -> URLDecoder.decode(t, "UTF-8") }
+                            ?.let { t -> normalizeBase64(t) }
 
                         if (samlResponse != null) {
                             // Always redirect to close the Custom Tab regardless of staleness.
@@ -155,6 +156,31 @@ class SamlCallbackServer {
         private const val TAG  = "SamlServer"
         const val PORT = 35001
         private const val SAML_MAX_AGE_MINUTES = 5L
+
+        /**
+         * Mirrors saml_capture.cpp normalize_base64():
+         *
+         * Chrome submits SAMLResponse as application/x-www-form-urlencoded. In this encoding
+         * '+' represents SPACE, so base64 '+' characters that Chrome does not percent-encode
+         * arrive in the POST body as raw '+', which URLDecoder.decode() then converts to SPACE.
+         * This step converts those spaces back to '+' and handles URL-safe base64 (-/_),
+         * strips non-base64 characters (newlines etc.), and re-adds padding.
+         */
+        fun normalizeBase64(input: String): String {
+            val sb = StringBuilder(input.length)
+            for (c in input) {
+                when {
+                    c == ' '                              -> sb.append('+')   // URLDecoded '+' → base64 '+'
+                    c in 'A'..'Z' || c in 'a'..'z'
+                            || c in '0'..'9' || c == '+' || c == '/' -> sb.append(c)
+                    c == '-'                              -> sb.append('+')   // URL-safe → standard base64
+                    c == '_'                              -> sb.append('/')   // URL-safe → standard base64
+                    // strip '=', '\n', '\r', and anything else — padding re-added below
+                }
+            }
+            while (sb.length % 4 != 0) sb.append('=')
+            return sb.toString()
+        }
 
         /**
          * Extracts IssueInstant from a base64-encoded SAML Response and returns how many
