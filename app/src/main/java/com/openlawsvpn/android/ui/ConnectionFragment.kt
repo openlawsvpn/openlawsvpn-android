@@ -86,7 +86,14 @@ class ConnectionFragment : Fragment() {
             return
         }
         // Ask Android for VPN permission — shows the system "Allow VPN?" dialog if needed.
-        val intent = VpnService.prepare(requireContext())
+        // VpnService.prepare() can throw SecurityException on some Android 15 builds when
+        // AppOps records are stale (e.g. right after reinstall). Treat it as needing permission.
+        val intent = try {
+            VpnService.prepare(requireContext())
+        } catch (e: SecurityException) {
+            Snackbar.make(binding.root, "VPN permission error: ${e.message}", Snackbar.LENGTH_LONG).show()
+            return
+        }
         if (intent != null) {
             pendingProfileId = profile.id
             vpnPermissionLauncher.launch(intent)
