@@ -24,6 +24,19 @@ LZ4_VER="${LZ4_VER:-1.8.3}"
 
 ABIS=("arm64-v8a" "x86_64")
 
+# ── Check Perl modules required by OpenSSL's Configure ───────────────────────
+# On Fedora these are separate packages: perl-FindBin perl-IPC-Cmd perl-File-Compare
+missing_perl=()
+for mod in FindBin IPC::Cmd File::Compare File::Copy; do
+    perl -M"$mod" -e1 2>/dev/null || missing_perl+=("$mod")
+done
+if [[ ${#missing_perl[@]} -gt 0 ]]; then
+    echo "ERROR: Missing Perl modules: ${missing_perl[*]}"
+    echo "  Fedora: sudo dnf install perl-FindBin perl-IPC-Cmd perl-File-Compare"
+    echo "  Ubuntu: sudo apt-get install perl"
+    exit 1
+fi
+
 # ── Locate NDK ────────────────────────────────────────────────────────────────
 
 if [[ -z "${ANDROID_NDK:-}" ]]; then
