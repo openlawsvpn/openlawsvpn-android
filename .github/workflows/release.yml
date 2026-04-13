@@ -70,13 +70,13 @@ jobs:
       # ── Build release AAB + APK ────────────────────────────────────────────
       # KEYSTORE_PATH  — plain path to the file we just decoded; not a secret.
       # KEY_ALIAS      — just a name; not a secret.
-      # KEYSTORE_PASSWORD / KEY_PASSWORD — actual secrets from repo Settings.
+      # KEY_PASSWORD   — PKCS12: must equal KEYSTORE_PASSWORD (one password for store + key).
       - name: Build release
         env:
           KEYSTORE_PATH:     ${{ runner.temp }}/openlawsvpn-release.keystore
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS:         openlawsvpn
-          KEY_PASSWORD:      ${{ secrets.KEY_PASSWORD }}
+          KEY_PASSWORD:      ${{ secrets.KEYSTORE_PASSWORD }}
           ANDROID_NDK:       ${{ env.ANDROID_HOME }}/ndk/30.0.14904198
         run: ./gradlew bundleRelease assembleRelease
 

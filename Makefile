@@ -15,8 +15,10 @@ deps:
 #
 # pass store layout:
 #   openlawsvpn/android/keystore-base64   — base64-encoded .keystore file
-#   openlawsvpn/android/keystore-password — keystore password
-#   openlawsvpn/android/key-password      — key password
+#   openlawsvpn/android/keystore-password — keystore/key password (PKCS12: one password for both)
+#
+# PKCS12 keystores use a single password for the store and every key entry.
+# KEY_PASSWORD must equal KEYSTORE_PASSWORD — both are set from keystore-password.
 #
 # The keystore is decoded into a mktemp file for the duration of the build,
 # then deleted (trap ensures cleanup even on failure).
@@ -30,10 +32,11 @@ release:
 	ks=$$(mktemp --suffix=.keystore); \
 	trap "rm -f $$ks" EXIT; \
 	pass show $(PASS_PREFIX)/keystore-base64 | base64 -d > $$ks; \
+	ksp="$$(pass show $(PASS_PREFIX)/keystore-password)"; \
 	KEYSTORE_PATH="$$ks" \
-	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
+	KEYSTORE_PASSWORD="$$ksp" \
 	KEY_ALIAS="$(KEY_ALIAS)" \
-	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
+	KEY_PASSWORD="$$ksp" \
 	./gradlew assembleRelease
 	@echo "APK: app/build/outputs/apk/release/app-release.apk"
 
@@ -43,10 +46,11 @@ bundle:
 	ks=$$(mktemp --suffix=.keystore); \
 	trap "rm -f $$ks" EXIT; \
 	pass show $(PASS_PREFIX)/keystore-base64 | base64 -d > $$ks; \
+	ksp="$$(pass show $(PASS_PREFIX)/keystore-password)"; \
 	KEYSTORE_PATH="$$ks" \
-	KEYSTORE_PASSWORD="$$(pass show $(PASS_PREFIX)/keystore-password)" \
+	KEYSTORE_PASSWORD="$$ksp" \
 	KEY_ALIAS="$(KEY_ALIAS)" \
-	KEY_PASSWORD="$$(pass show $(PASS_PREFIX)/key-password)" \
+	KEY_PASSWORD="$$ksp" \
 	./gradlew bundleRelease
 	@echo "AAB: app/build/outputs/bundle/release/app-release.aab"
 
