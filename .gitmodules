@@ -1,0 +1,3 @@
+[submodule "openlawsvpn"]
+	path = openlawsvpn
+	url = https://github.com/openlawsvpn/openlawsvpn
