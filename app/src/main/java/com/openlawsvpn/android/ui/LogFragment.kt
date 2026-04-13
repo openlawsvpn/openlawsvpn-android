@@ -1,9 +1,13 @@
 package com.openlawsvpn.android.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -28,6 +32,7 @@ class LogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.btnCopy.setOnClickListener { copyLogs() }
         binding.btnClear.setOnClickListener { lines.clear(); binding.tvLog.text = "" }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -39,6 +44,21 @@ class LogFragment : Fragment() {
                     binding.scrollView.post { binding.scrollView.fullScroll(View.FOCUS_DOWN) }
                 }
             }
+        }
+    }
+
+    private fun copyLogs() {
+        if (lines.isEmpty()) {
+            Toast.makeText(requireContext(), "No logs to copy.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val clip = ClipData.newPlainText("openlawsvpn log", lines.joinToString("\n"))
+        requireContext().getSystemService(Context.CLIPBOARD_SERVICE as String)
+            .let { it as ClipboardManager }
+            .setPrimaryClip(clip)
+        // Android 13+ shows its own clipboard confirmation toast; show our own on older versions.
+        if (android.os.Build.VERSION.SDK_INT < 33) {
+            Toast.makeText(requireContext(), "Logs copied to clipboard.", Toast.LENGTH_SHORT).show()
         }
     }
 

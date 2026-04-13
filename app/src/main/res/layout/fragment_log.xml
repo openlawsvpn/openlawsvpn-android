@@ -20,6 +20,13 @@
             android:textAppearance="?attr/textAppearanceLabelLarge" />
 
         <Button
+            android:id="@+id/btnCopy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Copy"
+            style="@style/Widget.Material3.Button.TextButton" />
+
+        <Button
             android:id="@+id/btnClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
