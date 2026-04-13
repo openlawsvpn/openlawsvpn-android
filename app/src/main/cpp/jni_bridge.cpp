@@ -201,7 +201,8 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientConnectPhase1(
 
 /**
  * clientConnectPhase2(handle, stateId, token, remoteIp)
- * Blocks until CONNECTED or throws. Must be called from a background thread.
+ * Blocks until CONNECTED. Throws a Java RuntimeException on auth failure or timeout.
+ * Must be called from a background thread.
  */
 JNIEXPORT void JNICALL
 Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientConnectPhase2(
@@ -209,13 +210,19 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientConnectPhase2(
         jstring jStateId, jstring jToken, jstring jRemoteIp) {
     auto* h = reinterpret_cast<ClientHandle*>(handle);
     if (!h) return;
-    const char* stateId  = env->GetStringUTFChars(jStateId,  nullptr);
-    const char* token    = env->GetStringUTFChars(jToken,    nullptr);
-    const char* remoteIp = env->GetStringUTFChars(jRemoteIp, nullptr);
-    h->client->connect_phase2(stateId, token, remoteIp);
-    env->ReleaseStringUTFChars(jStateId,  stateId);
-    env->ReleaseStringUTFChars(jToken,    token);
-    env->ReleaseStringUTFChars(jRemoteIp, remoteIp);
+
+    // Copy to std::string immediately so JNI strings are always released.
+    const char* raw;
+    raw = env->GetStringUTFChars(jStateId,  nullptr); std::string stateId(raw);  env->ReleaseStringUTFChars(jStateId,  raw);
+    raw = env->GetStringUTFChars(jToken,    nullptr); std::string token(raw);    env->ReleaseStringUTFChars(jToken,    raw);
+    raw = env->GetStringUTFChars(jRemoteIp, nullptr); std::string remoteIp(raw); env->ReleaseStringUTFChars(jRemoteIp, raw);
+
+    try {
+        h->client->connect_phase2(stateId, token, remoteIp);
+    } catch (const std::exception& ex) {
+        LOGE("clientConnectPhase2: %s", ex.what());
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), ex.what());
+    }
 }
 
 /**
@@ -224,10 +231,16 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientConnectPhase2(
  */
 JNIEXPORT jboolean JNICALL
 Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientWaitForDisconnect(
-        JNIEnv*, jobject, jlong handle) {
+        JNIEnv* env, jobject, jlong handle) {
     auto* h = reinterpret_cast<ClientHandle*>(handle);
     if (!h) return JNI_FALSE;
-    return h->client->wait_for_disconnect() ? JNI_TRUE : JNI_FALSE;
+    try {
+        return h->client->wait_for_disconnect() ? JNI_TRUE : JNI_FALSE;
+    } catch (const std::exception& ex) {
+        LOGE("clientWaitForDisconnect: %s", ex.what());
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), ex.what());
+        return JNI_FALSE;
+    }
 }
 
 JNIEXPORT void JNICALL
