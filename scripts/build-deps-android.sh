@@ -44,8 +44,8 @@ if [[ -z "${ANDROID_NDK:-}" ]]; then
     for candidate in \
         "$HOME/Android/Sdk/ndk/"* \
         "$HOME/Library/Android/sdk/ndk/"* \
-        "$ANDROID_HOME/ndk/"* \
-        "$ANDROID_SDK_ROOT/ndk/"*; do
+        "${ANDROID_HOME:-}/ndk/"* \
+        "${ANDROID_SDK_ROOT:-}/ndk/"*; do
         if [[ -f "$candidate/source.properties" ]]; then
             ANDROID_NDK="$candidate"
         fi
