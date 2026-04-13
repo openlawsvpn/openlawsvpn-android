@@ -75,6 +75,8 @@ class ConnectionFragment : Fragment() {
                 launch { viewModel.connectionState.collect { updateUi(it) } }
                 launch { viewModel.profiles.collect { updateProfileList(it) } }
                 launch { viewModel.samlUrlEvent.collect { openCustomTab(it) } }
+                // Re-evaluate Connect button when selected profile changes (e.g. after import).
+                launch { viewModel.selectedProfile.collect { updateConnectButton() } }
             }
         }
     }
@@ -100,6 +102,12 @@ class ConnectionFragment : Fragment() {
         } else {
             viewModel.connect(profile.id)
         }
+    }
+
+    private fun updateConnectButton() {
+        val state   = viewModel.connectionState.value
+        val isIdle  = state is ConnectionState.Idle || state is ConnectionState.Error
+        binding.btnConnect.isEnabled = isIdle && viewModel.selectedProfile.value != null
     }
 
     private fun updateUi(state: ConnectionState) {

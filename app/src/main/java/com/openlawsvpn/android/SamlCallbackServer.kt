@@ -1,5 +1,6 @@
 package com.openlawsvpn.android
 
+import android.util.Base64
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,8 @@ import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.URLDecoder
+import java.time.Duration
+import java.time.Instant
 
 /**
  * Minimal HTTP server on 127.0.0.1:35001 — the SAML ACS endpoint.
@@ -99,12 +102,19 @@ class SamlCallbackServer {
                             ?.let { t -> URLDecoder.decode(t, "UTF-8") }
 
                         if (samlResponse != null) {
+                            // Always redirect to close the Custom Tab regardless of staleness.
                             output.write(buildResponse(302, mapOf(
                                 "Location" to "openlawsvpn://saml-callback",
                                 "Access-Control-Allow-Origin" to "*",
                                 "Access-Control-Allow-Private-Network" to "true",
                             ), ""))
-                            onEvent(Event.TokenReceived(samlResponse))
+                            val ageMin = samlResponseAgeMinutes(samlResponse)
+                            if (ageMin != null && ageMin > SAML_MAX_AGE_MINUTES) {
+                                Log.w(TAG, "Rejecting SAML assertion issued ${ageMin}min ago (max $SAML_MAX_AGE_MINUTES min) — likely a cached Chrome form POST")
+                                onEvent(Event.Error("SAML assertion is ${ageMin} min old (limit: $SAML_MAX_AGE_MINUTES min). Please connect again for a fresh login."))
+                            } else {
+                                onEvent(Event.TokenReceived(samlResponse))
+                            }
                         } else {
                             output.write(buildResponse(400, emptyMap(), "Missing SAMLResponse"))
                         }
@@ -144,5 +154,20 @@ class SamlCallbackServer {
     companion object {
         private const val TAG  = "SamlServer"
         const val PORT = 35001
+        private const val SAML_MAX_AGE_MINUTES = 5L
+
+        /**
+         * Extracts IssueInstant from a base64-encoded SAML Response and returns how many
+         * minutes old it is, or null if the timestamp cannot be determined.
+         * AWS SAMLResponses contain IssueInstant="2026-04-14T00:04:40Z" in the root element.
+         */
+        fun samlResponseAgeMinutes(base64SamlResponse: String): Long? = try {
+            val xml = String(Base64.decode(base64SamlResponse, Base64.DEFAULT), Charsets.UTF_8)
+            val match = Regex("""IssueInstant="([^"]+)"""").find(xml) ?: return null
+            val issued = Instant.parse(match.groupValues[1])
+            Duration.between(issued, Instant.now()).toMinutes()
+        } catch (e: Exception) {
+            null  // can't parse — don't reject
+        }
     }
 }

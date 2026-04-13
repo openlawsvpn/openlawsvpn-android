@@ -55,7 +55,7 @@ class VpnConnectionService : VpnService() {
 
     companion object {
         private val _state     = MutableStateFlow<ConnectionState>(ConnectionState.Idle)
-        private val _log       = MutableSharedFlow<String>(extraBufferCapacity = 500)
+        private val _log       = MutableSharedFlow<String>(replay = 200, extraBufferCapacity = 300)
         private val _samlUrl   = MutableSharedFlow<String>(extraBufferCapacity = 1)
 
         val connectionState: StateFlow<ConnectionState> = _state.asStateFlow()
