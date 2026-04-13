@@ -68,6 +68,12 @@ add_library(openlawsvpn_jni SHARED
     ${OPENVPN3_CORE_DIR}/openvpn/crypto/data_epoch.cpp
 )
 
+# openvpn3-core uses bitwise OR between different enum types (AlgFlags | Mode),
+# which is deprecated in C++20. We cannot modify the submodule, so suppress it.
+target_compile_options(openlawsvpn_jni PRIVATE
+    -Wno-deprecated-enum-enum-conversion
+)
+
 target_compile_definitions(openlawsvpn_jni PRIVATE
     ASIO_STANDALONE
     USE_ASIO
