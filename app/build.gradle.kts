@@ -22,7 +22,7 @@ android {
 
     defaultConfig {
         applicationId = "com.openlawsvpn.android"
-        minSdk = 26
+        minSdk = 31
         targetSdk = 35
         versionCode = 2
         versionName = "0.1.1"
@@ -36,7 +36,7 @@ android {
                 cppFlags += "-std=c++20"
                 arguments += listOf(
                     "-DANDROID_STL=c++_shared",
-                    "-DANDROID_PLATFORM=android-26"
+                    "-DANDROID_PLATFORM=android-31"
                 )
             }
         }
