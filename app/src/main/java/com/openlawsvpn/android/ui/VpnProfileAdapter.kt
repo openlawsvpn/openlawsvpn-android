@@ -13,7 +13,6 @@ import com.openlawsvpn.android.model.VpnProfile
 class VpnProfileAdapter(
     private val onConnect: (VpnProfile) -> Unit,
     private val onDisconnect: () -> Unit,
-    private val onDelete: (VpnProfile) -> Unit,
 ) : RecyclerView.Adapter<VpnProfileAdapter.ViewHolder>() {
 
     private var profiles: List<VpnProfile> = emptyList()
@@ -83,9 +82,6 @@ class VpnProfileAdapter(
                 b.btnAction.setOnClickListener { onConnect(profile) }
             }
 
-            // Prevent deletion while this profile's tunnel is active.
-            b.btnDelete.isEnabled = !(isThis && anyBusy)
-            b.btnDelete.setOnClickListener { onDelete(profile) }
         }
     }
 }

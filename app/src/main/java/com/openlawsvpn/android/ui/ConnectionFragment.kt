@@ -3,6 +3,10 @@ package com.openlawsvpn.android.ui
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.net.VpnService
 import android.provider.OpenableColumns
 import androidx.core.net.toUri
@@ -18,9 +22,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.openlawsvpn.android.databinding.FragmentConnectionBinding
+import com.openlawsvpn.android.model.ConnectionState
 import com.openlawsvpn.android.model.VpnProfile
 import kotlinx.coroutines.launch
 
@@ -75,10 +82,10 @@ class ConnectionFragment : Fragment() {
         adapter = VpnProfileAdapter(
             onConnect    = { profile -> requestConnectWithPermission(profile) },
             onDisconnect = { viewModel.disconnect() },
-            onDelete     = { profile -> confirmDelete(profile) },
         )
         binding.rvProfiles.layoutManager = LinearLayoutManager(requireContext())
         binding.rvProfiles.adapter = adapter
+        setupSwipeToDelete()
 
         binding.btnImport.setOnClickListener { filePicker.launch("*/*") }
 
@@ -91,6 +98,100 @@ class ConnectionFragment : Fragment() {
             }
         }
     }
+
+    // ── Swipe-to-delete ───────────────────────────────────────────────────────
+
+    private fun setupSwipeToDelete() {
+        val density = resources.displayMetrics.density
+        val scaledDensity = resources.displayMetrics.scaledDensity
+
+        val cardRadius      = 12f * density          // matches item_vpn_profile cardCornerRadius
+        val cardMarginV     = 4f  * density          // matches item_vpn_profile marginVertical
+        val minRevealForText = 80f * density          // don't show label until this much is revealed
+
+        val bgPaint = Paint().apply {
+            color = Color.parseColor("#F78166")       // brand coral
+            isAntiAlias = true
+        }
+        val textPaint = Paint().apply {
+            color = Color.WHITE
+            textSize = 14f * scaledDensity
+            isFakeBoldText = true
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
+        }
+
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ) = false
+
+            // Disable swipe for the profile that is currently busy (connecting / connected).
+            override fun getSwipeDirs(rv: RecyclerView, vh: RecyclerView.ViewHolder): Int {
+                val pos = vh.adapterPosition
+                if (pos == RecyclerView.NO_POSITION) return 0
+                val profile = viewModel.profiles.value.getOrNull(pos) ?: return 0
+                val isBusy = profile.id == viewModel.activeProfileId.value &&
+                    viewModel.connectionState.value.let {
+                        it !is ConnectionState.Idle &&
+                        it !is ConnectionState.Error &&
+                        it !is ConnectionState.NeedReauth
+                    }
+                return if (isBusy) 0 else super.getSwipeDirs(rv, vh)
+            }
+
+            override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
+                val pos = vh.adapterPosition
+                if (pos == RecyclerView.NO_POSITION) return
+                val profile = viewModel.profiles.value.getOrNull(pos) ?: return
+                // Snap the item back — the snackbar is the confirmation step.
+                adapter.notifyItemChanged(pos)
+                Snackbar.make(binding.root, "'${profile.name}'", Snackbar.LENGTH_LONG)
+                    .setAction("Delete") { viewModel.deleteProfile(profile.id) }
+                    .show()
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean,
+            ) {
+                val v    = vh.itemView
+                val top  = v.top  + cardMarginV
+                val bot  = v.bottom - cardMarginV
+                val textY = (top + bot) / 2f - (textPaint.descent() + textPaint.ascent()) / 2f
+                val bg   = RectF()
+
+                if (dX < 0) {                           // swipe left → label on right
+                    bg.set(v.right + dX, top, v.right.toFloat(), bot)
+                    c.drawRoundRect(bg, cardRadius, cardRadius, bgPaint)
+                    if (-dX > minRevealForText)
+                        c.drawText("Delete", bg.centerX(), textY, textPaint)
+                } else if (dX > 0) {                    // swipe right → label on left
+                    bg.set(v.left.toFloat(), top, v.left + dX, bot)
+                    c.drawRoundRect(bg, cardRadius, cardRadius, bgPaint)
+                    if (dX > minRevealForText)
+                        c.drawText("Delete", bg.centerX(), textY, textPaint)
+                }
+
+                super.onChildDraw(c, rv, vh, dX, dY, actionState, isCurrentlyActive)
+            }
+
+            override fun getSwipeThreshold(vh: RecyclerView.ViewHolder) = 0.35f
+        }
+
+        ItemTouchHelper(callback).attachToRecyclerView(binding.rvProfiles)
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun updateAll() {
         val profiles = viewModel.profiles.value
@@ -116,12 +217,6 @@ class ConnectionFragment : Fragment() {
         } else {
             viewModel.connect(profile.id)
         }
-    }
-
-    private fun confirmDelete(profile: VpnProfile) {
-        Snackbar.make(binding.root, "Delete '${profile.name}'?", Snackbar.LENGTH_LONG)
-            .setAction("Delete") { viewModel.deleteProfile(profile.id) }
-            .show()
     }
 
     private fun openCustomTab(samlUrl: String) {
