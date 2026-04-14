@@ -128,7 +128,7 @@ class ConnectionFragment : Fragment() {
             is ConnectionState.WaitingSaml   -> "Waiting for SAML login…"
             is ConnectionState.Connected     -> "Connected — ${state.profileName}"
             is ConnectionState.Disconnecting -> "Disconnecting…"
-            is ConnectionState.NeedReauth    -> "Session expired — tap Connect to re-authenticate."
+            is ConnectionState.NeedReauth    -> state.reason.ifEmpty { "Session expired — tap Connect to re-authenticate." }
             is ConnectionState.Error         -> "Error: ${state.message}"
         }
 

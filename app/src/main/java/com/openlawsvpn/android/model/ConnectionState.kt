@@ -13,6 +13,6 @@ sealed class ConnectionState {
     ) : ConnectionState()
     object Disconnecting : ConnectionState()
     /** SAML session expired — re-auth needed (NEED_CREDS event after CONNECTED). */
-    data class NeedReauth(val profileName: String) : ConnectionState()
+    data class NeedReauth(val profileName: String, val reason: String = "") : ConnectionState()
     data class Error(val message: String) : ConnectionState()
 }

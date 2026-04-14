@@ -5,7 +5,12 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
@@ -90,6 +95,32 @@ class VpnConnectionService : VpnService() {
     private var activePfd: ParcelFileDescriptor? = null
     private var configFile: File? = null
     private var connectJob: Job? = null
+
+    @Volatile private var disconnectedByNetworkLoss = false
+
+    private val connectivityManager: ConnectivityManager by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onLost(network: Network) {
+            if (_state.value !is ConnectionState.Connected) return
+            // Only react if there is genuinely no remaining internet (not just a WiFi→LTE handoff).
+            val active = connectivityManager.activeNetwork
+            val caps  = active?.let { connectivityManager.getNetworkCapabilities(it) }
+            val hasInternet = caps != null
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            if (!hasInternet) {
+                log("Network connectivity lost — VPN tunnel interrupted.")
+                disconnectedByNetworkLoss = true
+                serviceScope.launch {
+                    if (vpnHandle != 0L)
+                        withContext(Dispatchers.IO) { LibOpenLawsVpn.clientDisconnect(vpnHandle) }
+                }
+            }
+        }
+    }
 
     // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -200,18 +231,33 @@ class VpnConnectionService : VpnService() {
             _state.value = ConnectionState.Connected(profile.name, remoteIp, "")
             log("Tunnel up — connected to ${profile.name}.")
             updateNotification("Connected — ${profile.name}")
+            // Watch for network loss so we don't show "Connected" when the tunnel is dead.
+            connectivityManager.registerNetworkCallback(
+                NetworkRequest.Builder().build(), networkCallback
+            )
 
             // Wait for disconnect in background.
             serviceScope.launch(Dispatchers.IO) {
                 val needsReauth = LibOpenLawsVpn.clientWaitForDisconnect(vpnHandle)
                 withContext(Dispatchers.Main) {
-                    if (needsReauth) {
-                        log("Session expired — re-authentication required.")
-                        _state.value = ConnectionState.NeedReauth(profile.name)
-                    } else {
-                        log("Disconnected.")
-                        _state.value = ConnectionState.Idle
+                    when {
+                        disconnectedByNetworkLoss -> {
+                            log("Disconnected — network was lost.")
+                            _state.value = ConnectionState.NeedReauth(
+                                profile.name,
+                                "Network was lost — tap Connect to reconnect."
+                            )
+                        }
+                        needsReauth -> {
+                            log("Session expired — re-authentication required.")
+                            _state.value = ConnectionState.NeedReauth(profile.name)
+                        }
+                        else -> {
+                            log("Disconnected.")
+                            _state.value = ConnectionState.Idle
+                        }
                     }
+                    disconnectedByNetworkLoss = false
                     cleanup()
                 }
             }
@@ -236,6 +282,7 @@ class VpnConnectionService : VpnService() {
         freeHandle()
         activePfd?.close(); activePfd = null
         configFile?.delete(); configFile = null
+        try { connectivityManager.unregisterNetworkCallback(networkCallback) } catch (_: Exception) {}
     }
 
     private fun freeHandle() {
@@ -325,17 +372,23 @@ class VpnConnectionService : VpnService() {
     }
 
     private fun buildNotification(text: String): Notification {
-        val pi = PendingIntent.getActivity(
+        val openAppPi = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE,
         )
+        val disconnectPi = PendingIntent.getService(
+            this, 1,
+            Intent(this, VpnConnectionService::class.java).apply { action = ACTION_DISCONNECT },
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+        )
         return NotificationCompat.Builder(this, NOTIF_CHANNEL)
             .setContentTitle("openlawsvpn")
             .setContentText(text)
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
-            .setContentIntent(pi)
+            .setSmallIcon(R.drawable.ic_stat_vpn)
+            .setContentIntent(openAppPi)
             .setOngoing(true)
+            .addAction(android.R.drawable.ic_delete, "Disconnect", disconnectPi)
             .build()
     }
 

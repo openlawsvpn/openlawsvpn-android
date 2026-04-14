@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="ic_launcher_background">#FF6200EE</color>
+    <!-- Brand dark background — matches website #0d1117 -->
+    <color name="ic_launcher_background">#FF0D1117</color>
+    <!-- Brand coral accent — the | separator color -->
+    <color name="brand_accent">#FFF78166</color>
 </resources>
