@@ -8,18 +8,18 @@
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="26"
+            line="33"
             column="9"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 26)"
+        message="Attribute `enableOnBackInvokedCallback` is only used in API level 33 and higher (current min is 31)"
         errorLine1="        android:enableOnBackInvokedCallback=&quot;true&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="18"
+            line="19"
             column="9"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="    ~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="20"
+            line="27"
             column="5"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="102"
+            line="109"
             column="20"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="103"
+            line="110"
             column="20"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="104"
+            line="111"
             column="20"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="105"
+            line="112"
             column="20"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="106"
+            line="113"
             column="20"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="107"
+            line="114"
             column="20"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="108"
+            line="115"
             column="20"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="109"
+            line="116"
             column="20"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="110"
+            line="117"
             column="20"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="112"
+            line="119"
             column="20"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="115"
+            line="122"
             column="24"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="111"
+            line="118"
             column="20"/>
     </issue>
 
@@ -184,36 +184,36 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle.kts"
-            line="114"
+            line="121"
             column="24"/>
     </issue>
 
     <issue
+        id="NotifyDataSetChanged"
+        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
+        errorLine1="        notifyDataSetChanged()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/openlawsvpn/android/ui/VpnProfileAdapter.kt"
+            line="26"
+            column="9"/>
+    </issue>
+
+    <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 31. Merge all the resources in this folder into `mipmap-anydpi`.">
         <location
             file="src/main/res/mipmap-anydpi-v26"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        message="The resource `R.color.purple_500` appears to be unused"
-        errorLine1="    &lt;color name=&quot;purple_500&quot;>#FF6200EE&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        message="The resource `R.color.brand_accent` appears to be unused"
+        errorLine1="    &lt;color name=&quot;brand_accent&quot;>#FFF78166&lt;/color>"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/colors.xml"
-            line="3"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.purple_700` appears to be unused"
-        errorLine1="    &lt;color name=&quot;purple_700&quot;>#FF3700B3&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="4"
+            line="6"
             column="12"/>
     </issue>
 
@@ -229,14 +229,69 @@
     </issue>
 
     <issue
-        id="MonochromeLauncherIcon"
-        message="The application adaptive icon is missing a monochrome tag"
-        errorLine1="&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
+        id="UnusedResources"
+        message="The resource `R.string.label_vpn_profile` appears to be unused"
+        errorLine1="    &lt;string name=&quot;label_vpn_profile&quot;>VPN Profile&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
-            line="2"
-            column="1"/>
+            file="src/main/res/values/strings.xml"
+            line="11"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_import` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_import&quot;>Import .ovpn File&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="12"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.status_disconnected` appears to be unused"
+        errorLine1="    &lt;string name=&quot;status_disconnected&quot;>Disconnected&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="14"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.btn_delete_profile` appears to be unused"
+        errorLine1="    &lt;string name=&quot;btn_delete_profile&quot;>Delete profile&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="17"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="            color = Color.parseColor(&quot;#F78166&quot;)       // brand coral"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/openlawsvpn/android/ui/ConnectionFragment.kt"
+            line="114"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UseKtx"
+        message="Use the KTX extension function `String.toColorInt` instead?"
+        errorLine1="            color = Color.parseColor(&quot;#F78166&quot;)       // brand coral"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/openlawsvpn/android/ui/ConnectionFragment.kt"
+            line="114"
+            column="21"/>
     </issue>
 
 </issues>
