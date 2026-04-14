@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">openlawsvpn</string>
+
+    <!-- Bottom navigation labels -->
+    <string name="nav_connect">Connect</string>
+    <string name="nav_log">Log</string>
+    <string name="nav_about">About</string>
+
+    <!-- Connection screen -->
+    <string name="label_vpn_profile">VPN Profile</string>
+    <string name="btn_import">Import .ovpn File</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_disconnect">Disconnect</string>
+
+    <!-- Log screen -->
+    <string name="label_vpn_log">VPN Log</string>
+    <string name="btn_copy">Copy</string>
+    <string name="btn_clear">Clear</string>
 </resources>

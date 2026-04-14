@@ -1,3 +1,4 @@
+// Copyright (C) 2026 openlawsvpn contributors. All rights reserved.
 package com.openlawsvpn.android.ui
 
 import android.app.Application
@@ -19,6 +20,8 @@ import kotlinx.coroutines.launch
 
 class ConnectionViewModel(app: Application) : AndroidViewModel(app) {
 
+    // Application context is safe to hold statically — it lives as long as the process.
+    @Suppress("StaticFieldLeak")
     private val ctx = app.applicationContext
 
     // ── Observe service state (shared across entire process) ──────────────────

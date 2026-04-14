@@ -1,5 +1,7 @@
+// Copyright (C) 2026 openlawsvpn contributors. All rights reserved.
 package com.openlawsvpn.android
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -32,5 +34,20 @@ class MainActivity : AppCompatActivity() {
 
         val navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         binding.bottomNav.setupWithNavController(navHost.navController)
+    }
+
+    /**
+     * Handles the `openlawsvpn://saml-callback` deep-link that Chrome fires after the user
+     * completes SAML login. The SAMLResponse was already captured by SamlCallbackServer before
+     * the redirect — this intent just brings the activity back to the foreground.
+     *
+     * SECURITY: Validate scheme + host before acting. Any installed app can fire an intent
+     * to an exported Activity; rejecting unknown schemes prevents unintended side-effects.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.data?.scheme == "openlawsvpn" && intent.data?.host == "saml-callback") {
+            setIntent(intent)
+        }
     }
 }

@@ -1,0 +1,23 @@
+openlawsvpn is an open-source VPN client for AWS Client VPN endpoints that use SAML/SSO authentication (e.g. Okta, Azure AD, Google Workspace).
+
+FEATURES
+• Connects to AWS Client VPN with SAML single sign-on — no passwords stored
+• Opens your company IdP login in a secure Chrome Custom Tab
+• Supports any SAML 2.0 identity provider compatible with AWS Client VPN
+• Stores multiple VPN profiles in app-private storage
+• Real-time connection log viewer
+
+HOW IT WORKS
+1. Import your AWS Client VPN .ovpn profile
+2. Tap Connect — the app opens your company's SSO login in Chrome
+3. Complete sign-in once; the app captures the SAML token and establishes the tunnel
+4. All traffic is routed through your AWS VPC endpoint
+
+PRIVACY
+• No analytics, no telemetry, no data collection
+• Your VPN traffic goes directly to your own AWS endpoint — not through any openlawsvpn servers
+• Profiles and connection logs are stored on-device only
+
+OPEN SOURCE
+openlawsvpn is built on openvpn3-core (AGPL-3.0) and libopenlawsvpn (LGPL-2.1).
+Source: https://github.com/openlawsvpn/openlawsvpn

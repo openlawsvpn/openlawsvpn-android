@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cloud backup exclusion rules for Android 11 and below (API ≤ 30).
+  On Android 12+ the companion data_extraction_rules.xml is used instead.
+
+  VPN profiles contain server addresses and keys — exclude from backup.
+-->
+<full-backup-content>
+    <exclude domain="file" path="." />
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+</full-backup-content>

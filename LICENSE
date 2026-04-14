@@ -1,0 +1,32 @@
+Copyright (C) 2026 openlawsvpn contributors. All rights reserved.
+
+This software is proprietary and confidential. No part of this software
+may be copied, modified, distributed, or sublicensed without the prior
+written permission of the copyright holder, except as expressly permitted
+by applicable law.
+
+Third-party open source components included in this distribution are
+licensed under their respective terms. See NOTICE.md for details.
+
+AGPL-3.0 NOTICE
+---------------
+This software includes openvpn3-core, which is licensed under the GNU
+Affero General Public License v3.0 (AGPL-3.0-or-later). In compliance
+with AGPL-3.0 Section 13, the complete corresponding source for the
+openvpn3-core component (including all openlawsvpn modifications) is
+available at:
+
+  Upstream:      https://github.com/OpenVPN/openvpn3
+  Modifications: https://github.com/openlawsvpn/openlawsvpn
+                 (openvpn3-core/ submodule)
+
+LGPL-2.1 NOTICE
+---------------
+This software includes libopenlawsvpn, which is licensed under the GNU
+Lesser General Public License v2.1 with a usage exception. The usage
+exception grants permission to ship this library in any product —
+including proprietary products — without source-release obligations
+for your own application code. See the openlawsvpn repository for the
+full license and usage exception text:
+
+  https://github.com/openlawsvpn/openlawsvpn

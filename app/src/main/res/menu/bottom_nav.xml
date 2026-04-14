@@ -3,9 +3,13 @@
     <item
         android:id="@+id/connectionFragment"
         android:icon="@android:drawable/ic_lock_lock"
-        android:title="Connect" />
+        android:title="@string/nav_connect" />
     <item
         android:id="@+id/logFragment"
         android:icon="@android:drawable/ic_menu_info_details"
-        android:title="Log" />
+        android:title="@string/nav_log" />
+    <item
+        android:id="@+id/aboutFragment"
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="@string/nav_about" />
 </menu>

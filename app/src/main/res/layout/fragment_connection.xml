@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="VPN Profile"
+            android:text="@string/label_vpn_profile"
             android:textAppearance="?attr/textAppearanceLabelLarge"
             android:paddingBottom="8dp" />
 
@@ -26,7 +26,7 @@
             android:id="@+id/btnImport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Import .ovpn File"
+            android:text="@string/btn_import"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_marginBottom="24dp" />
 
@@ -34,7 +34,7 @@
             android:id="@+id/tvStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Disconnected"
+            android:text="@string/status_disconnected"
             android:textAppearance="?attr/textAppearanceTitleMedium"
             android:gravity="center"
             android:paddingBottom="16dp" />
@@ -51,14 +51,14 @@
             android:id="@+id/btnConnect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Connect"
+            android:text="@string/btn_connect"
             android:layout_marginBottom="8dp" />
 
         <Button
             android:id="@+id/btnDisconnect"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Disconnect"
+            android:text="@string/btn_disconnect"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:enabled="false" />
 

@@ -14,4 +14,9 @@
         android:name="com.openlawsvpn.android.ui.LogFragment"
         android:label="Log" />
 
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.openlawsvpn.android.ui.AboutFragment"
+        android:label="About" />
+
 </navigation>

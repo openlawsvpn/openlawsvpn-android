@@ -52,7 +52,10 @@ struct ClientHandle {
 
 static JNIEnv* attach() {
     JNIEnv* env = nullptr;
-    g_jvm->AttachCurrentThread(&env, nullptr);
+    if (g_jvm->AttachCurrentThread(&env, nullptr) != JNI_OK) {
+        LOGE("AttachCurrentThread failed");
+        return nullptr;
+    }
     return env;
 }
 static void detach() { g_jvm->DetachCurrentThread(); }
@@ -133,6 +136,7 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientNew(
     // Tun establish — called from openvpn3-core thread during Phase 2 connect.
     h->client->set_tun_establish_fn([h](const openlawsvpn::TunConfig& cfg) -> int {
         JNIEnv* e = attach();
+        if (!e) return -1;
         std::string json = tun_config_to_json(cfg);
         jstring j = e->NewStringUTF(json.c_str());
         jint fd = e->CallIntMethod(h->svc_ref, h->mid_build_tun, j);
@@ -145,6 +149,7 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientNew(
     // Socket protect — called for each VPN socket (UDP/TCP) before connecting.
     h->client->set_socket_protect_fn([h](int fd, const std::string&, bool) -> bool {
         JNIEnv* e = attach();
+        if (!e) return false;
         jboolean ok = e->CallBooleanMethod(h->svc_ref, h->mid_protect, (jint)fd);
         detach();
         return (bool)ok;
@@ -154,6 +159,7 @@ Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientNew(
     h->client->set_log_callback([](const char* msg, void* ud) {
         auto* h = static_cast<ClientHandle*>(ud);
         JNIEnv* e = attach();
+        if (!e) return;
         jstring j = e->NewStringUTF(msg);
         e->CallVoidMethod(h->svc_ref, h->mid_log, j);
         e->DeleteLocalRef(j);
@@ -247,7 +253,7 @@ JNIEXPORT void JNICALL
 Java_com_openlawsvpn_android_jni_LibOpenLawsVpn_clientDisconnect(
         JNIEnv*, jobject, jlong handle) {
     auto* h = reinterpret_cast<ClientHandle*>(handle);
-    if (h) h->client->disconnect();
+    if (h && h->client) h->client->disconnect();
 }
 
 } // extern "C"

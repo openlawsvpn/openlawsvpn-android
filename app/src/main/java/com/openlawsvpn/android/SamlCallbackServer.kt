@@ -1,3 +1,4 @@
+// Copyright (C) 2026 openlawsvpn contributors. All rights reserved.
 package com.openlawsvpn.android
 
 import android.util.Base64
@@ -110,12 +111,14 @@ class SamlCallbackServer {
                                 "Access-Control-Allow-Private-Network" to "true",
                             ), ""))
                             val ageMin = samlResponseAgeMinutes(samlResponse)
+                            // Hard reject stale assertions — do NOT emit TokenReceived.
                             if (ageMin != null && ageMin > SAML_MAX_AGE_MINUTES) {
                                 Log.w(TAG, "Rejecting SAML assertion issued ${ageMin}min ago (max $SAML_MAX_AGE_MINUTES min) — likely a cached Chrome form POST")
                                 onEvent(Event.Error("SAML assertion is ${ageMin} min old (limit: $SAML_MAX_AGE_MINUTES min). Please connect again for a fresh login."))
-                            } else {
-                                onEvent(Event.TokenReceived(samlResponse))
+                                output.flush()
+                                return
                             }
+                            onEvent(Event.TokenReceived(samlResponse))
                         } else {
                             output.write(buildResponse(400, emptyMap(), "Missing SAMLResponse"))
                         }

@@ -1,9 +1,10 @@
+// Copyright (C) 2026 openlawsvpn contributors. All rights reserved.
 package com.openlawsvpn.android.ui
 
 import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.net.VpnService
+import androidx.core.net.toUri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -151,7 +152,7 @@ class ConnectionFragment : Fragment() {
 
     private fun openCustomTab(samlUrl: String) {
         CustomTabsIntent.Builder().setShowTitle(true).build()
-            .launchUrl(requireContext(), Uri.parse(samlUrl))
+            .launchUrl(requireContext(), samlUrl.toUri())
     }
 
     override fun onDestroyView() {

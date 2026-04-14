@@ -16,21 +16,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="VPN Log"
+            android:text="@string/label_vpn_log"
             android:textAppearance="?attr/textAppearanceLabelLarge" />
 
         <Button
             android:id="@+id/btnCopy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Copy"
+            android:text="@string/btn_copy"
             style="@style/Widget.Material3.Button.TextButton" />
 
         <Button
             android:id="@+id/btnClear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Clear"
+            android:text="@string/btn_clear"
             style="@style/Widget.Material3.Button.TextButton" />
 
     </LinearLayout>
