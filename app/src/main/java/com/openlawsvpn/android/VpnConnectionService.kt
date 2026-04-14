@@ -99,28 +99,41 @@ class VpnConnectionService : VpnService() {
      *  Must be joined before clientFree to avoid use-after-free in native code. */
     private var waitJob: Job? = null
 
-    @Volatile private var disconnectedByNetworkLoss = false
+    /**
+     * Non-null when the VPN network was lost externally (server drop or full internet loss).
+     * Carries the user-visible reason string; read by waitJob on the Main thread.
+     */
+    @Volatile private var networkDisconnectReason: String? = null
 
     private val connectivityManager: ConnectivityManager by lazy {
         getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
 
+    /**
+     * Registered against TRANSPORT_VPN so onLost fires whenever the VPN network itself
+     * disappears — whether the server ended the session or the device lost all connectivity.
+     * This catches the "server-side disconnect while Wi-Fi is still up" case that the old
+     * internet-loss check missed.
+     */
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onLost(network: Network) {
             if (_state.value !is ConnectionState.Connected) return
-            // Only react if there is genuinely no remaining internet (not just a WiFi→LTE handoff).
+            // Determine why: if internet is still reachable the server dropped us;
+            // if internet is also gone the device lost connectivity.
             val active = connectivityManager.activeNetwork
-            val caps  = active?.let { connectivityManager.getNetworkCapabilities(it) }
+            val caps   = active?.let { connectivityManager.getNetworkCapabilities(it) }
             val hasInternet = caps != null
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            if (!hasInternet) {
-                log("Network connectivity lost — VPN tunnel interrupted.")
-                disconnectedByNetworkLoss = true
-                serviceScope.launch {
-                    if (vpnHandle != 0L)
-                        withContext(Dispatchers.IO) { LibOpenLawsVpn.clientDisconnect(vpnHandle) }
-                }
+            val reason = if (hasInternet)
+                "VPN connection dropped — tap Connect to reconnect."
+            else
+                "Network was lost — tap Connect to reconnect."
+            log("VPN network lost. $reason")
+            networkDisconnectReason = reason
+            serviceScope.launch {
+                if (vpnHandle != 0L)
+                    withContext(Dispatchers.IO) { LibOpenLawsVpn.clientDisconnect(vpnHandle) }
             }
         }
     }
@@ -234,9 +247,15 @@ class VpnConnectionService : VpnService() {
             _state.value = ConnectionState.Connected(profile.name, remoteIp, "")
             log("Tunnel up — connected to ${profile.name}.")
             updateNotification("Connected — ${profile.name}")
-            // Watch for network loss so we don't show "Connected" when the tunnel is dead.
+            // Watch specifically for VPN network loss — fires when the server drops the session
+            // OR when the device loses all connectivity.  Using TRANSPORT_VPN means onLost
+            // triggers even when Wi-Fi is still up (the old generic request missed this case).
             connectivityManager.registerNetworkCallback(
-                NetworkRequest.Builder().build(), networkCallback
+                NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_VPN)
+                    .removeCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                    .build(),
+                networkCallback
             )
 
             // Wait for disconnect in background.
@@ -245,13 +264,10 @@ class VpnConnectionService : VpnService() {
             waitJob = serviceScope.launch(Dispatchers.IO) {
                 val needsReauth = LibOpenLawsVpn.clientWaitForDisconnect(vpnHandle)
                 withContext(Dispatchers.Main) {
+                    val externalReason = networkDisconnectReason
                     when {
-                        disconnectedByNetworkLoss -> {
-                            log("Disconnected — network was lost.")
-                            _state.value = ConnectionState.NeedReauth(
-                                profile.name,
-                                "Network was lost — tap Connect to reconnect."
-                            )
+                        externalReason != null -> {
+                            _state.value = ConnectionState.NeedReauth(profile.name, externalReason)
                         }
                         needsReauth -> {
                             log("Session expired — re-authentication required.")
@@ -262,7 +278,7 @@ class VpnConnectionService : VpnService() {
                             _state.value = ConnectionState.Idle
                         }
                     }
-                    disconnectedByNetworkLoss = false
+                    networkDisconnectReason = null
                     waitJob = null
                     cleanup()
                 }
