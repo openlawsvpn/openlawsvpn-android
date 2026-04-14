@@ -79,7 +79,9 @@ target_compile_definitions(openlawsvpn_jni PRIVATE
     USE_ASIO
     HAVE_LZ4
     USE_OPENSSL
-    USE_TUN_BUILDER
+    # USE_TUN_BUILDER is defined by ovpncli.cpp itself; defining it here causes a
+    # macro-redefined warning because the command-line value (1) differs from the
+    # empty definition in the source file.
     OPENVPN_CORE_API_VISIBILITY_HIDDEN
     # Android-specific: disables Linux tun paths in libopenlawsvpn.cpp
     __ANDROID__

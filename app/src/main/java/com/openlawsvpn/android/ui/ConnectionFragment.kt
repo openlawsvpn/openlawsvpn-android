@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.util.TypedValue
 import android.net.VpnService
 import android.provider.OpenableColumns
 import androidx.core.net.toUri
@@ -102,8 +103,8 @@ class ConnectionFragment : Fragment() {
     // ── Swipe-to-delete ───────────────────────────────────────────────────────
 
     private fun setupSwipeToDelete() {
-        val density = resources.displayMetrics.density
-        val scaledDensity = resources.displayMetrics.scaledDensity
+        val dm = resources.displayMetrics
+        val density = dm.density
 
         val cardRadius      = 12f * density          // matches item_vpn_profile cardCornerRadius
         val cardMarginV     = 4f  * density          // matches item_vpn_profile marginVertical
@@ -115,7 +116,7 @@ class ConnectionFragment : Fragment() {
         }
         val textPaint = Paint().apply {
             color = Color.WHITE
-            textSize = 14f * scaledDensity
+            textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14f, dm)
             isFakeBoldText = true
             isAntiAlias = true
             textAlign = Paint.Align.CENTER
