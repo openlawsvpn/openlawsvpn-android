@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <!-- Shield clip path -->
+    <clipPath id="shieldClip">
+      <path d="M512 120 L620 160 L620 290 Q620 360 512 400 Q404 360 404 290 L404 160 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- Subtle grid lines -->
+  <g stroke="#30363d" stroke-width="0.5" opacity="0.4">
+    <line x1="0" y1="100" x2="1024" y2="100"/>
+    <line x1="0" y1="200" x2="1024" y2="200"/>
+    <line x1="0" y1="300" x2="1024" y2="300"/>
+    <line x1="0" y1="400" x2="1024" y2="400"/>
+    <line x1="200" y1="0" x2="200" y2="500"/>
+    <line x1="400" y1="0" x2="400" y2="500"/>
+    <line x1="600" y1="0" x2="600" y2="500"/>
+    <line x1="800" y1="0" x2="800" y2="500"/>
+  </g>
+
+  <!-- Shield background fill -->
+  <path d="M512 110 L632 154 L632 296 Q632 374 512 418 Q392 374 392 296 L392 154 Z"
+        fill="#161b22" stroke="#30363d" stroke-width="2"/>
+
+  <!-- Shield inner glow ring -->
+  <path d="M512 122 L620 162 L620 292 Q620 364 512 404 Q404 364 404 292 L404 162 Z"
+        fill="none" stroke="#f78166" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Lock body -->
+  <rect x="488" y="258" width="48" height="38" rx="5" fill="#f78166"/>
+  <!-- Lock shackle -->
+  <path d="M498 258 L498 240 Q498 222 512 222 Q526 222 526 240 L526 258"
+        fill="none" stroke="#f78166" stroke-width="6" stroke-linecap="round"/>
+  <!-- Lock keyhole -->
+  <circle cx="512" cy="272" r="6" fill="#0d1117"/>
+  <rect x="509" y="272" width="6" height="10" rx="2" fill="#0d1117"/>
+
+  <!-- Wordmark — left side -->
+  <!-- "open" in muted -->
+  <text x="180" y="272" font-family="system-ui,-apple-system,sans-serif"
+        font-size="62" font-weight="700" fill="#8b949e" text-anchor="end"
+        letter-spacing="-1">open</text>
+  <!-- pipe in accent -->
+  <text x="182" y="272" font-family="system-ui,-apple-system,sans-serif"
+        font-size="62" font-weight="300" fill="#f78166" text-anchor="start">|</text>
+
+  <!-- "awsvpn" — right side -->
+  <text x="844" y="272" font-family="system-ui,-apple-system,sans-serif"
+        font-size="62" font-weight="700" fill="#e6edf3" text-anchor="start"
+        letter-spacing="-1">awsvpn</text>
+
+  <!-- Tagline -->
+  <text x="512" y="440" font-family="system-ui,-apple-system,sans-serif"
+        font-size="20" fill="#8b949e" text-anchor="middle" letter-spacing="1">
+    AWS Client VPN  ·  SAML/SSO  ·  Open Source
+  </text>
+
+  <!-- Accent dots for visual balance -->
+  <circle cx="140" cy="160" r="3" fill="#f78166" opacity="0.5"/>
+  <circle cx="100" cy="340" r="2" fill="#3fb950" opacity="0.5"/>
+  <circle cx="884" cy="160" r="3" fill="#f78166" opacity="0.5"/>
+  <circle cx="924" cy="340" r="2" fill="#3fb950" opacity="0.5"/>
+</svg>
