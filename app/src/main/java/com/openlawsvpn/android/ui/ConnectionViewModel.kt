@@ -36,7 +36,19 @@ class ConnectionViewModel(app: Application) : AndroidViewModel(app) {
     private val _selectedProfile = MutableStateFlow<VpnProfile?>(null)
     val selectedProfile: StateFlow<VpnProfile?> = _selectedProfile.asStateFlow()
 
-    init { refreshProfiles() }
+    /** ID of the profile that was most recently passed to connect(). Cleared on Idle/Error. */
+    private val _activeProfileId = MutableStateFlow<String?>(null)
+    val activeProfileId: StateFlow<String?> = _activeProfileId.asStateFlow()
+
+    init {
+        refreshProfiles()
+        viewModelScope.launch {
+            connectionState.collect { state ->
+                if (state is ConnectionState.Idle || state is ConnectionState.Error)
+                    _activeProfileId.value = null
+            }
+        }
+    }
 
     fun refreshProfiles() {
         viewModelScope.launch {
@@ -70,6 +82,7 @@ class ConnectionViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Start VPN connection. Activity must have already called VpnService.prepare(). */
     fun connect(profileId: String) {
+        _activeProfileId.value = profileId
         val intent = Intent(ctx, VpnConnectionService::class.java).apply {
             action = VpnConnectionService.ACTION_CONNECT
             putExtra(VpnConnectionService.EXTRA_PROFILE_ID, profileId)

@@ -10,9 +10,12 @@
     <!-- Connection screen -->
     <string name="label_vpn_profile">VPN Profile</string>
     <string name="btn_import">Import .ovpn File</string>
+    <string name="btn_add_profile">+ Add Profile</string>
     <string name="status_disconnected">Disconnected</string>
     <string name="btn_connect">Connect</string>
     <string name="btn_disconnect">Disconnect</string>
+    <string name="btn_delete_profile">Delete profile</string>
+    <string name="tv_no_profiles">No VPN profiles yet\n\nImport an .ovpn file to get started.</string>
 
     <!-- Log screen -->
     <string name="label_vpn_log">VPN Log</string>
