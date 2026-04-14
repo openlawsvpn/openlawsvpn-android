@@ -1,6 +1,13 @@
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+fun gitCommitCount(): Int =
+    ProcessBuilder("git", "rev-list", "--count", "HEAD")
+        .directory(rootProject.projectDir)
+        .start()
+        .inputStream.bufferedReader().readText()
+        .trim().toInt()
+
 plugins {
     id("com.android.application")
     id("androidx.navigation.safeargs.kotlin")
@@ -24,7 +31,7 @@ android {
         applicationId = "com.openlawsvpn.android"
         minSdk = 31
         targetSdk = 35
-        versionCode = 2
+        versionCode = gitCommitCount()
         versionName = "0.1.1"
 
         ndk {
