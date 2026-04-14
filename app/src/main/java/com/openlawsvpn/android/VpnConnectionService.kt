@@ -95,6 +95,9 @@ class VpnConnectionService : VpnService() {
     private var activePfd: ParcelFileDescriptor? = null
     private var configFile: File? = null
     private var connectJob: Job? = null
+    /** Tracks the background coroutine blocking on clientWaitForDisconnect.
+     *  Must be joined before clientFree to avoid use-after-free in native code. */
+    private var waitJob: Job? = null
 
     @Volatile private var disconnectedByNetworkLoss = false
 
@@ -237,7 +240,9 @@ class VpnConnectionService : VpnService() {
             )
 
             // Wait for disconnect in background.
-            serviceScope.launch(Dispatchers.IO) {
+            // Save the job so disconnect() can join() it before calling clientFree —
+            // otherwise clientFree races with clientWaitForDisconnect's condition_variable.
+            waitJob = serviceScope.launch(Dispatchers.IO) {
                 val needsReauth = LibOpenLawsVpn.clientWaitForDisconnect(vpnHandle)
                 withContext(Dispatchers.Main) {
                     when {
@@ -258,6 +263,7 @@ class VpnConnectionService : VpnService() {
                         }
                     }
                     disconnectedByNetworkLoss = false
+                    waitJob = null
                     cleanup()
                 }
             }
@@ -271,6 +277,10 @@ class VpnConnectionService : VpnService() {
             _state.value = ConnectionState.Disconnecting
             withContext(Dispatchers.IO) { LibOpenLawsVpn.clientDisconnect(vpnHandle) }
         }
+        // Join the background wait coroutine before calling clientFree.
+        // clientWaitForDisconnect blocks on a native condition_variable; freeing the
+        // handle while that thread is still inside the mutex causes SIGABRT / SIGSEGV.
+        waitJob?.join()
         cleanup()
         _state.value = ConnectionState.Idle
         stopForeground(STOP_FOREGROUND_REMOVE)
