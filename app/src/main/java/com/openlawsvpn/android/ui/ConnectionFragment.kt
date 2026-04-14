@@ -4,11 +4,13 @@ package com.openlawsvpn.android.ui
 import android.app.Activity
 import android.content.Intent
 import android.net.VpnService
+import android.provider.OpenableColumns
 import androidx.core.net.toUri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.browser.customtabs.CustomTabsIntent
@@ -49,7 +51,13 @@ class ConnectionFragment : Fragment() {
         try {
             val content = requireContext().contentResolver.openInputStream(uri)
                 ?.bufferedReader()?.readText() ?: return@registerForActivityResult
-            val name = uri.lastPathSegment?.removeSuffix(".ovpn") ?: "profile"
+            // Resolve the human-readable display name via OpenableColumns — avoids
+            // the raw encoded path that uri.lastPathSegment returns for content URIs.
+            val displayName = requireContext().contentResolver
+                .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+            val name = (displayName ?: uri.lastPathSegment?.substringAfterLast('/') ?: "profile")
+                .removeSuffix(".ovpn").ifEmpty { "profile" }
             viewModel.importProfile(name, content)
             Snackbar.make(binding.root, "Profile '$name' imported.", Snackbar.LENGTH_SHORT).show()
         } catch (e: Exception) {
@@ -70,6 +78,14 @@ class ConnectionFragment : Fragment() {
         binding.btnImport.setOnClickListener { filePicker.launch("*/*") }
         binding.btnConnect.setOnClickListener { onConnectClicked() }
         binding.btnDisconnect.setOnClickListener { viewModel.disconnect() }
+
+        binding.spinnerProfile.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val p = viewModel.profiles.value
+                if (position < p.size) viewModel.selectProfile(p[position])
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -146,8 +162,12 @@ class ConnectionFragment : Fragment() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerProfile.adapter = adapter
 
-        if (profiles.isNotEmpty())
-            viewModel.selectProfile(profiles[binding.spinnerProfile.selectedItemPosition.coerceAtMost(profiles.lastIndex)])
+        // Restore spinner to the currently selected profile; replacing the adapter
+        // always resets the position to 0, which would silently switch to the first profile.
+        val currentId = viewModel.selectedProfile.value?.id
+        val idx = profiles.indexOfFirst { it.id == currentId }.coerceAtLeast(0)
+        binding.spinnerProfile.setSelection(idx)
+        // onItemSelectedListener fires from setSelection and keeps viewModel in sync.
     }
 
     private fun openCustomTab(samlUrl: String) {
