@@ -4,23 +4,25 @@ License: LGPL-2.1-or-later
 AuthorName: openlawsvpn contributors
 AuthorEmail: security@openlawsvpn.com
 AuthorWebSite: https://openlawsvpn.com
+SourceCode: https://github.com/openlawsvpn/openlawsvpn-android
 IssueTracker: https://github.com/openlawsvpn/openlawsvpn-android/issues
 
 RepoType: git
 Repo: https://github.com/openlawsvpn/openlawsvpn-android
 
 Builds:
-  - versionName: "0.1.1"
-    versionCode: 7
-    commit: d38dfa659b7c63315ce833743ee41b8f38266c4a
+  - versionName: "0.1.7"
+    versionCode: 11
+    commit: v0.1.7
     submodules: true
     sudo:
-      - apt-get install -y perl
+      - apt-get update
+      - apt-get install -y perl make
     output: app/build/outputs/apk/release/app-release-unsigned.apk
     gradle:
-      - release
+      - yes
 
-AutoUpdateMode: Version v%v
+AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: "0.1.1"
-CurrentVersionCode: 7
+CurrentVersion: "0.1.7"
+CurrentVersionCode: 11
