@@ -31,8 +31,8 @@ android {
         applicationId = "com.openlawsvpn.android"
         minSdk = 31
         targetSdk = 36
-        versionCode = 11
-        versionName = "0.1.7"
+        versionCode = 12
+        versionName = "0.1.8"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
