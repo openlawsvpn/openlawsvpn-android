@@ -26,24 +26,16 @@ make init
 
 The C++ core and openvpn3-core are nested git submodules.
 
-### 2. Build native deps (OpenSSL + LZ4)
-
-```sh
-make deps
-```
-
-The NDK is auto-detected from `~/Android/Sdk/ndk/*` or `$ANDROID_NDK`.
-Output goes to `prebuilt/` (gitignored). Run once; re-run only when updating library versions.
-
-### 3. Android Studio
+### 2. Android Studio
 
 Open the project root in Android Studio (AGP 9.x, NDK 30+).
+
+OpenSSL and LZ4 are built from source automatically by CMake on the first build — no manual pre-build step required.
 
 ## Development
 
 ```sh
 make init              # initialize / update all submodules
-make deps              # cross-compile OpenSSL + LZ4 (run once)
 make lint              # run lint checks
 make test              # run unit tests
 make release           # build signed release APK (requires pass store)

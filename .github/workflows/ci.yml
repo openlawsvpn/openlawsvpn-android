@@ -29,25 +29,14 @@ jobs:
           echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
             "ndk;30.0.14904198" >/dev/null
 
-      # ── Cache: prebuilt OpenSSL + LZ4 ─────────────────────────────────────────
-      - name: Cache prebuilt native deps
-        id: cache-prebuilt
+      # ── Cache: CMake ExternalProject deps (OpenSSL + LZ4) ────────────────────
+      # Built from source by CMake on first run; cached by CMakeLists.txt hash.
+      - name: Cache CMake deps
         uses: actions/cache@v5
         with:
-          path: prebuilt/
-          key: prebuilt-${{ runner.os }}-${{ hashFiles('scripts/build-deps-android.sh') }}
-
-      - name: Install build tools (Perl modules for OpenSSL Configure)
-        if: steps.cache-prebuilt.outputs.cache-hit != 'true'
-        run: sudo apt-get install -y perl perl-modules
-
-      - name: Build prebuilt deps (OpenSSL + LZ4)
-        if: steps.cache-prebuilt.outputs.cache-hit != 'true'
-        run: |
-          LOG=$(mktemp)
-          ANDROID_NDK="$ANDROID_HOME/ndk/30.0.14904198" ./scripts/build-deps-android.sh \
-            >"$LOG" 2>&1 || { cat "$LOG"; exit 1; }
-          [[ "${RUNNER_DEBUG}" == "1" ]] && cat "$LOG" || true
+          path: app/.cxx
+          key: cmake-deps-${{ runner.os }}-${{ hashFiles('app/src/main/cpp/CMakeLists.txt') }}
+          restore-keys: cmake-deps-${{ runner.os }}-
 
       # ── Cache: Gradle ──────────────────────────────────────────────────────────
       - name: Cache Gradle

@@ -5,11 +5,11 @@
 init submodules:
 	git submodule update --init --recursive
 
-# Cross-compile OpenSSL and LZ4 static libs for arm64-v8a and x86_64.
-# Requires Android NDK — auto-detected from ~/Android/Sdk/ndk/* or ANDROID_NDK env var.
-# Output: prebuilt/{openssl,lz4}/<ABI>/{include,lib}/
+# OpenSSL and LZ4 are built from source automatically by CMake
+# (ExternalProject_Add in app/src/main/cpp/CMakeLists.txt).
+# No manual pre-build step needed.
 deps:
-	./scripts/build-deps-android.sh
+	@echo "deps are built automatically by CMake during the first Gradle build."
 
 # Release signing via `pass`.
 #
