@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand dark background — matches website #0d1117 -->
+    <color name="ic_launcher_background">#FF0D1117</color>
+    <!-- Brand coral accent — the | separator color -->
+    <color name="brand_accent">#FFF78166</color>
+</resources>

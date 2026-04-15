@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Launcher icon foreground — the brand pipe | character.
+  open|aws|vpn: the | is the visual mark of the brand (coral #f78166).
+  The pipe is centered in the 108×108 viewport within the 72dp safe zone.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Pipe | shape, centered, coral brand color -->
+    <path
+        android:fillColor="#F78166"
+        android:pathData="M47,24 L61,24 L61,84 L47,84 Z" />
+
+</vector>

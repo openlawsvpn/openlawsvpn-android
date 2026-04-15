@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security config.
+  Cleartext HTTP is allowed only to 127.0.0.1 — required for the SAML ACS server on
+  port 35001. All other traffic must use TLS; cleartext to external hosts is blocked.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- SAML ACS endpoint: Chrome Custom Tab POSTs SAMLResponse to http://127.0.0.1:35001 -->
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>
