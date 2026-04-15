@@ -18,7 +18,7 @@ Builds:
     sudo:
       - apt-get update
       - apt-get install -y perl make
-    output: app/build/outputs/apk/release/app-release-unsigned.apk
+    output: build/outputs/apk/release/app-release-unsigned.apk
     gradle:
       - yes
 
