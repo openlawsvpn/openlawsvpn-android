@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+  <rect width="1024" height="500" fill="#0d1117"/>
+
+  <!-- Wordmark: open|awsvpn, centered -->
+  <text x="512" y="295" text-anchor="middle"
+        font-family="system-ui,-apple-system,BlinkMacSystemFont,sans-serif"
+        font-size="120" font-weight="700" letter-spacing="-3">
+    <tspan fill="#e6edf3">open</tspan><tspan fill="#f78166" font-weight="300">|</tspan><tspan fill="#8b949e">aws</tspan><tspan fill="#e6edf3">vpn</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="512" y="385"
+        font-family="system-ui,-apple-system,BlinkMacSystemFont,sans-serif"
+        font-size="22" fill="#8b949e" text-anchor="middle" letter-spacing="1">
+    AWS Client VPN  ·  SAML / SSO  ·  Open Source
+  </text>
+</svg>

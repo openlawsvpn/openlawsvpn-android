@@ -1,0 +1,6 @@
+• Per-profile list UI — manage multiple VPN profiles with individual Connect / Disconnect buttons
+• Swipe a profile card to delete it (with confirmation)
+• Network loss detection — shows "Network was lost" instead of staying on Connected
+• Brand icon: openlawsvpn pipe "|" logo in notification and app icon
+• Foreground notification includes a Disconnect action button
+• Fixes: disconnect no longer crashes the app; selected profile is always used correctly
