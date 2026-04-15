@@ -1,4 +1,4 @@
-.PHONY: init submodules deps release bundle lint test clean clean-deps-build
+.PHONY: init submodules deps release bundle lint test clean clean-deps-build wrapper
 
 # Initialize / update all git submodules (including nested openvpn3-core).
 # Run this once after cloning, and again after pulling changes that bump a submodule.
@@ -66,3 +66,12 @@ clean:
 # Remove downloaded sources (prebuilt output is kept).
 clean-deps-build:
 	rm -rf .deps-build/
+
+# Upgrade the Gradle wrapper to a new version.
+# Find VERSION and SHA256 at https://gradle.org/releases/
+# Usage: make wrapper VERSION=9.4.1 SHA256=2ab2958f2a1e51120c326cad6f385153bb11ee93b3c216c5fccebfdfbb7ec6cb
+wrapper:
+	@test -n "$(VERSION)" || (echo "Usage: make wrapper VERSION=X.Y.Z SHA256=<checksum>"; exit 1)
+	@test -n "$(SHA256)"  || (echo "Usage: make wrapper VERSION=X.Y.Z SHA256=<checksum>"; exit 1)
+	./gradlew wrapper --gradle-version $(VERSION) --gradle-distribution-sha256-sum $(SHA256)
+	@echo "Wrapper updated. Commit gradle/wrapper/ and gradlew* files."
