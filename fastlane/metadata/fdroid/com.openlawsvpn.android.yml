@@ -1,0 +1,51 @@
+Categories:
+  - Internet
+License: LGPL-2.1-or-later
+AuthorName: openlawsvpn contributors
+AuthorEmail: security@openlawsvpn.com
+AuthorWebSite: https://openlawsvpn.com
+
+Name: openlawsvpn
+Description: |-
+  AWS Client VPN client with SAML/SSO authentication.
+
+  Connect to AWS Client VPN endpoints that use SAML single sign-on (Okta,
+  Azure AD, Google Workspace, or any SAML 2.0 identity provider) — without
+  storing passwords on the device.
+
+  <b>Features</b>
+  * Connects to AWS Client VPN with SAML single sign-on
+  * Opens your company IdP login in a secure Chrome Custom Tab
+  * Manage multiple VPN profiles — import, connect, delete per profile
+  * Per-profile live status: Connecting / Connected / Session expired
+  * Automatic detection of network loss and server-side session drops
+  * Real-time connection log viewer
+  * Persistent foreground notification with one-tap Disconnect
+  * VPN profiles encrypted at rest with AES-256-GCM (Android Keystore)
+
+  <b>Privacy</b>
+  No analytics, no telemetry, no crash reporting, no data collection.
+  Your VPN traffic goes directly to your own AWS endpoint.
+  Profiles and logs are stored on-device only.
+
+  <b>Open Source</b>
+  Built on openvpn3-core (AGPL-3.0) and libopenlawsvpn (LGPL-2.1).
+
+RepoType: git
+Repo: https://github.com/openlawsvpn/openlawsvpn-android
+
+Builds:
+  - versionName: "0.1.0"
+    versionCode: 5
+    commit: v0.1.0
+    submodules: true
+    sudo:
+      - apt-get install -y perl
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+    gradle:
+      - release
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: "0.1.0"
+CurrentVersionCode: 5
