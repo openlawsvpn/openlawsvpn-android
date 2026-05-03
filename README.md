@@ -1,7 +1,7 @@
 # openlawsvpn for Android
 
 [![CI](https://github.com/openlawsvpn/openlawsvpn-android/actions/workflows/ci.yml/badge.svg)](https://github.com/openlawsvpn/openlawsvpn-android/actions/workflows/ci.yml)
-[![License: LGPL-2.1-or-later](https://img.shields.io/badge/License-LGPL--2.1--or--later-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
 Android client for [openlawsvpn](https://github.com/openlawsvpn/openlawsvpn) — connect to AWS Client VPN endpoints with SAML/SSO (Okta, Azure AD, Google Workspace, any SAML 2.0 IdP).
 
@@ -56,4 +56,6 @@ See `openlawsvpn/linux/include/libopenlawsvpn.h` for the C++ API surface.
 
 ## License
 
-LGPL-2.1-or-later. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md) for third-party component licenses.
+Apache License 2.0 — see [LICENSE](LICENSE).
+
+> **Archived:** This repo is a proof-of-concept (C++/JNI/NDK stack). The active Android client is [openlawsvpn-android-go](https://github.com/openlawsvpn/openlawsvpn-android-go) (pure Go, no NDK).
